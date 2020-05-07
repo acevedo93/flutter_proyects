@@ -1,9 +1,9 @@
-import 'package:barcode_scan/gen/protos/protos.pb.dart';
+
 import 'package:flutter/material.dart';
+import 'package:qr/models/scan_model.dart';
 import 'package:qr/pages/directions_page.dart';
 import 'package:qr/pages/maps_page.dart';
-
-import 'package:barcode_scan/barcode_scan.dart';
+import 'package:qr/providers/db_provider.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -76,13 +76,13 @@ class _HomePageState extends State<HomePage> {
   void _scanQr() async {
     // https://frenando-herrera.com
     // geo:40.453452345,-73.5345667
-    print('hola');
-    dynamic futureString = '';
+    dynamic futureString = 'https://frenando-herrera.com';
 
     try {
-      futureString = await BarcodeScanner.scan();
+      // futureString = await BarcodeScanner.scan();
       if(futureString != null) {
-        print(futureString);
+        final scan = ScanModel(valor: futureString);
+        DbProvider.db.newScan(scan);
       }
     } catch(e) {
       futureString = e.toString();
