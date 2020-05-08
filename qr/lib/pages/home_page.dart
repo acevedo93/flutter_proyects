@@ -1,9 +1,15 @@
 
+
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:qr/bloc/scans_bloc.dart';
 import 'package:qr/models/scan_model.dart';
 import 'package:qr/pages/directions_page.dart';
 import 'package:qr/pages/maps_page.dart';
-import 'package:qr/providers/db_provider.dart';
+import 'package:qr/utils/utils.dart' as utils;
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final scansBloc = new ScansBloc();
 
   int currentIndex = 0;
   @override
@@ -62,12 +69,15 @@ class _HomePageState extends State<HomePage> {
 
   Widget _makeAppBar() {
     return AppBar(
+      
       title: Text('Qr scanner'),
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.delete_forever),
-          onPressed: (){},
-          color: Theme.of(context).primaryColor
+          onPressed: (){
+            scansBloc.deleteAll();
+          },
+          color: Colors.white
         )
       ],
     );
@@ -76,13 +86,19 @@ class _HomePageState extends State<HomePage> {
   void _scanQr() async {
     // https://frenando-herrera.com
     // geo:40.453452345,-73.5345667
-    dynamic futureString = 'https://frenando-herrera.com';
-
+    dynamic futureString = 'https://fernando-herrera.com';
+    dynamic geoString = 'geo:40.453452345,-73.5345667';
     try {
       // futureString = await BarcodeScanner.scan();
       if(futureString != null) {
         final scan = ScanModel(valor: futureString);
-        DbProvider.db.newScan(scan);
+        scansBloc.newScan(scan);
+        final scan2 = ScanModel(valor: geoString);
+        scansBloc.newScan(scan2);
+        if (Platform.isIOS ) {
+          return Future.delayed(Duration(milliseconds: 750), ()=> utils.launchScan(scan,context));
+        }
+        return utils.launchScan(scan, context);
       }
     } catch(e) {
       futureString = e.toString();
